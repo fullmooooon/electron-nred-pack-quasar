@@ -1,0 +1,8 @@
+{
+    "dayjs": {
+        "spec": "dayjs",
+        "module": "dayjs",
+        "builtin": false,
+        "known": false
+    }
+}
