@@ -1,5 +1,7 @@
 # electron-nred-pack-quasar (electron-nred-pack-quasar)
 
+**[中文](README-zh.md)**  
+
 含有 node-red 的 electron 快速启动源码
 
 Electron app with node-red quick start
