@@ -8,7 +8,7 @@ const platform = process.platform || os.platform();
 const flowfile = "flows.json";
 const listenPort = "80";
 const url = "/admin";
-const urledit = "/admin";
+let isNpmRunDev = process.argv[2]?.indexOf("electron-main.js") > -1;
 
 try {
   if (platform === "win32" && nativeTheme.shouldUseDarkColors === true) {
@@ -37,10 +37,7 @@ function createWindow() {
     },
   });
 
-  // setInterval(() => {
-  //   // 这里有个node-red和electron的神奇bug，require node-red 后 devtools 不能立即启动，必须用这种延迟的方式
-  //   mainWindow.loadURL(process.env.APP_URL);
-  // }, 5000);
+  mainWindow.loadURL(process.env.APP_URL);
 
   mainWindow.on("ready-to-show", () => {
     if (!mainWindow) {
@@ -50,14 +47,9 @@ function createWindow() {
   });
 
   if (process.env.DEBUGGING) {
-    // if on DEV or Production with debug enabled
     mainWindow.webContents.openDevTools({ mode: "detach" });
   } else {
     console.log(`production不打开`);
-    // we're on production; no access to devtools pls
-    // mainWindow.webContents.on("devtools-opened", () => {
-    //   mainWindow.webContents.closeDevTools();
-    // });
   }
   let webContents = mainWindow.webContents;
   webContents.on(
@@ -76,15 +68,11 @@ function createWindow() {
   mainWindow.webContents.on(
     "new-window",
     function (e, url, frameName, disposition, options) {
-      // if a child window opens... modify any other options such as width/height, etc
-      // in this case make the child overlap the parent exactly...
       var w = mainWindow.getBounds();
       options.x = w.x;
       options.y = w.y;
       options.width = w.width;
       options.height = w.height;
-      //re-use the same child name so all "2nd" windows use the same one.
-      //frameName = "child";
     }
   );
 
@@ -115,12 +103,6 @@ let red_app = express();
 let server = http.createServer(red_app);
 
 let userdir;
-// if (process.argv[1] && process.argv[1] === "main.js") {
-//   userdir = __dirname;
-// } else {
-//   const fs = require("fs");
-//   userdir = os.homedir() + "/.node-red";
-// }
 if (process.argv[2]?.indexOf("electron-main.js")) {
   // 开发环境
   userdir = path.resolve(process.execPath, "../../../../public/.node-red");
@@ -155,15 +137,6 @@ var template = [
   {
     label: "Node-RED",
     submenu: [
-      //{ label: 'Dashboard',
-      //accelerator: "Shift+CmdOrCtrl+D",
-      //click() { mainWindow.loadURL("http://localhost:"+listenPort+url); }
-      //},
-      //{ label: 'Editor',
-      //accelerator: "Shift+CmdOrCtrl+E",
-      //click() { mainWindow.loadURL("http://localhost:"+listenPort+urledit); }
-      //},
-      //{ type: 'separator' },
       {
         label: "Documentation",
         click() {
@@ -187,16 +160,6 @@ var template = [
     ],
   },
   {
-    //label: "Edit",
-    //submenu: [
-    //    { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-    //    { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-    //    { type: "separator" },
-    //    { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-    //    { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-    //    { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-    //    { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
-    //]}, {
     label: "View",
     submenu: [
       {
@@ -206,23 +169,29 @@ var template = [
           if (focusedWindow) focusedWindow.reload();
         },
       },
-      //{ label: 'Toggle Developer Tools',
-      //    accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
-      //    click(item, focusedWindow) { if (focusedWindow) focusedWindow.webContents.toggleDevTools(); }
-      //},
       { type: "separator" },
       { role: "resetzoom" },
       { role: "zoomin" },
       { role: "zoomout" },
-      //{ type: 'separator' },
-      //{ role: 'togglefullscreen' },
-      //{ role: 'minimize' }
     ],
   },
 ];
 
 RED.start().then(function () {
   server.listen(listenPort, "127.0.0.1", function () {
-    mainWindow.loadURL("http://127.0.0.1:" + listenPort + url);
+    let nredWindow = new BrowserWindow({
+      icon: path.resolve(__dirname, "icons/icon.png"), // tray icon
+      width: 1000,
+      height: 600,
+      show: isNpmRunDev,
+      useContentSize: true,
+      webPreferences: {
+        devTools: true,
+        contextIsolation: true,
+        // More info: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/electron-preload-script
+        preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD),
+      },
+    });
+    nredWindow.loadURL("http://127.0.0.1:" + listenPort + url);
   });
 });
