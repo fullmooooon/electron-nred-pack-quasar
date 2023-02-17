@@ -1,12 +1,14 @@
 # electron-nred-pack-quasar (electron-nred-pack-quasar)
 
-**[中文](README-zh.md)**  
+**[English](README.md)**  
 
-Electron app with node-red quick start
+含有 node-red 的 electron 快速启动代码
 
-base [quasar](https://quasar.dev/)
+基于quasar框架
 
-All node-red change in dev mode will be saved to the packaged installation package.
+所有在dev中编辑的node-red代码都会保存到打包后的安装包中
+
+
 
 ## Install the dependencies
 
