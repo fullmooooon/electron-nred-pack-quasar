@@ -2,15 +2,11 @@
 
 **[中文](README-zh.md)**  
 
-含有 node-red 的 electron 快速启动源码
-
 Electron app with node-red quick start
 
-——
+base [quasar](https://quasar.dev/)
 
-所有在dev中导入的package和代码都会保存到打包后的安装包中
-
-All package and code in dev will be saved to the packaged installation package.
+All node-red change in dev mode will be saved to the packaged installation package.
 
 ## Install the dependencies
 
