@@ -79,6 +79,11 @@ function createWindow() {
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
+
+  mainWindow.on("close", () => {
+    // 主窗口关闭时node-red一起关闭
+    app.quit();
+  });
 }
 
 app.whenReady().then(createWindow);
